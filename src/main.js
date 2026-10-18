@@ -102,7 +102,12 @@ ipcMain.handle('supported-versions', () => {
     if (Array.isArray(pc)) {
       for (const entry of pc) {
         if (entry && entry.minecraftVersion && entry.releaseType === 'release') {
-          versions.add(String(entry.minecraftVersion));
+          const version = String(entry.minecraftVersion);
+          const parts = version.split('.').map(Number);
+          // This Mineflayer fork's supported range starts at Java Edition 1.8.
+          // Keep modern 26.x releases, and exclude older 1.7.x-era protocols.
+          const supportedRange = parts[0] > 1 || (parts[0] === 1 && (parts[1] || 0) >= 8);
+          if (supportedRange) versions.add(version);
         }
       }
     }
