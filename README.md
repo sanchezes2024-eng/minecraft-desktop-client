@@ -18,18 +18,19 @@ If you have an existing checkout, get the latest source with `git pull` before i
 
 - W/A/S/D or arrow keys: move
 - Space: jump
-- Shift: sneak
+- Shift: sneak; dismount while riding
 - Ctrl: sprint
 - Mouse: look around while captured
 - 1–9 or mouse wheel: select hotbar slot
 - Left click: attack a mob under the crosshair, or attempt to break the targeted block
-- Right click: attempt to place the held block
+- Right click: interact with a rideable entity under the crosshair (horse, boat, minecart, pig, strider, camel, etc.); otherwise attempt to place the held block
+- WASD / arrows while riding: steer vehicles that support steering
 - T: open chat
 - Escape: pause menu / resume
 
 ## Notes
 
-This is a Mineflayer-driven client prototype, not a full reimplementation of the official Minecraft client. The server controls permissions and game mode. Protocol support and world rendering depend on the installed Mineflayer and Prismarine Viewer versions. Creative-mode inventory management, full crafting screens, resource packs, sound, and complete parity with the official client are not implemented.
+This is a Mineflayer-driven client prototype, not a full reimplementation of the official Minecraft client. Mounting uses Mineflayer entity interaction and server-side vehicle attachment. The server controls whether a mount is usable; pigs and striders may require a saddle, horses may require taming, and some mounts (such as llamas) cannot be steered normally. Vehicle movement support depends on the selected protocol and Mineflayer fork. The server controls permissions and game mode. Protocol support and world rendering depend on the installed Mineflayer and Prismarine Viewer versions. Creative-mode inventory management, full crafting screens, resource packs, sound, and complete parity with the official client are not implemented.
 
 ## Minecraft Java 26.3 compatibility
 
