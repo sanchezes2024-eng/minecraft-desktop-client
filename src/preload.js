@@ -11,6 +11,7 @@ contextBridge.exposeInMainWorld('mcClient', {
   dig: action => ipcRenderer.send('dig', action),
   dismount: () => ipcRenderer.send('dismount'),
   inventoryRequest: () => ipcRenderer.send('inventory-request'),
+  inventoryOpenTable: () => ipcRenderer.send('inventory-open-table'),
   inventoryClick: payload => ipcRenderer.send('inventory-click', payload),
   inventoryGive: (name,count) => ipcRenderer.send('inventory-give',{name,count}),
   inventoryCraft: payload => ipcRenderer.send('inventory-craft',payload),
