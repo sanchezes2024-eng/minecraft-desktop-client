@@ -95,33 +95,24 @@ app.on('before-quit', () => { closing = true; closeBot(); });
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
 app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });
 
-ipcMain.handle('supported-versions', () => {
-  const versions = new Set();
-  try {
-    const pc = mcDataFactory && mcDataFactory.versions && mcDataFactory.versions.pc;
-    if (Array.isArray(pc)) {
-      for (const entry of pc) {
-        if (entry && entry.minecraftVersion && entry.releaseType === 'release') {
-          const version = String(entry.minecraftVersion);
-          const parts = version.split('.').map(Number);
-          // This Mineflayer fork's supported range starts at Java Edition 1.8.
-          // Keep modern 26.x releases, and exclude older 1.7.x-era protocols.
-          const supportedRange = parts[0] > 1 || (parts[0] === 1 && (parts[1] || 0) >= 8);
-          if (supportedRange) versions.add(version);
-        }
-      }
-    }
-  } catch {}
-  // Only advertise releases actually present in the installed minecraft-data registry.
-  return [...versions].sort((a, b) => {
-    const pa = a.split('.').map(Number), pb = b.split('.').map(Number);
-    for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
-      const diff = (pa[i] || 0) - (pb[i] || 0);
-      if (diff) return diff;
-    }
-    return 0;
-  }).reverse();
-});
+ipcMain.handle('supported-versions', () => [
+  '1.21.4',
+  '1.21.1',
+  '1.20.1',
+  '1.19',
+  '1.18.1',
+  '1.17.1',
+  '1.16.4',
+  '1.16.1',
+  '1.15.2',
+  '1.14.4',
+  '1.13.2',
+  '1.12.2',
+  '1.11.2',
+  '1.10.2',
+  '1.9.4',
+  '1.8.8'
+]);
 
 ipcMain.handle('connect', async (_event, cfg) => {
   closeBot();
