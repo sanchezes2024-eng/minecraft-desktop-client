@@ -46,7 +46,7 @@
     if(!matches.length){const p=document.createElement('p');p.textContent='No matching items found.';el.append(p);}
   }
   $('inventoryClose').addEventListener('click',()=>show(false));
-  $('craftTableBtn').addEventListener('click',()=>{craftingTable=!craftingTable;tab='inventory';render();});
+  $('craftTableBtn').addEventListener('click',()=>{craftingTable=!craftingTable;tab='inventory';render();if(craftingTable)window.mcClient.inventoryOpenTable();});
   window.addEventListener('keydown',e=>{if(e.code==='KeyE'&&!e.repeat&&!e.target.matches('input,textarea,select')&&$('gameScreen')&&!$('gameScreen').hidden){e.preventDefault();show(panel.hidden);}if(e.code==='Escape'&&!panel.hidden){e.preventDefault();show(false);}});
   window.mcClient.onInventory(data=>{state=data.state||state;items=data.items||items;recipes=data.recipes||[];render();});
   window.mcClient.onState(s=>{state=s||state;if(!panel.hidden)render();});
