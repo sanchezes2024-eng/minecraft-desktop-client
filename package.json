@@ -1,0 +1,17 @@
+{
+  "name": "minecraft-style-desktop-client",
+  "version": "1.0.0",
+  "description": "Electron + Mineflayer desktop client with a Minecraft-inspired HUD",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "check": "node --check src/main.js && node --check src/preload.js && node --check src/renderer.js"
+  },
+  "dependencies": {
+    "mineflayer": "npm:@wp2508/mineflayer@4.42.2",
+    "prismarine-viewer": "^1.33.0"
+  },
+  "devDependencies": {
+    "electron": "^38.2.0"
+  }
+}
