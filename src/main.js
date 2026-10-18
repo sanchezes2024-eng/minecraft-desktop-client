@@ -95,6 +95,33 @@ app.on('before-quit', () => { closing = true; closeBot(); });
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
 app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });
 
+ipcMain.handle('supported-versions', () => {
+  const versions = new Set();
+  try {
+    const pc = mcDataFactory && mcDataFactory.versions && mcDataFactory.versions.pc;
+    if (Array.isArray(pc)) {
+      for (const entry of pc) {
+        if (entry && entry.minecraftVersion && entry.releaseType === 'release') {
+          versions.add(String(entry.minecraftVersion));
+        }
+      }
+    }
+  } catch {}
+  // Keep the latest versions advertised by the installed Mineflayer fork visible
+  // even if its minecraft-data dependency has not yet caught up.
+  for (const version of ['1.8','1.9','1.10','1.11','1.12','1.13','1.14','1.15','1.16','1.17','1.18','1.19','1.20','1.21','1.21.9','1.21.11','26.1','26.2','26.3']) {
+    versions.add(version);
+  }
+  return [...versions].sort((a, b) => {
+    const pa = a.split('.').map(Number), pb = b.split('.').map(Number);
+    for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+      const diff = (pa[i] || 0) - (pb[i] || 0);
+      if (diff) return diff;
+    }
+    return 0;
+  }).reverse();
+});
+
 ipcMain.handle('connect', async (_event, cfg) => {
   closeBot();
   const host = String(cfg?.host || '').trim();
