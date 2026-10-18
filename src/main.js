@@ -112,11 +112,7 @@ ipcMain.handle('supported-versions', () => {
       }
     }
   } catch {}
-  // Keep the latest versions advertised by the installed Mineflayer fork visible
-  // even if its minecraft-data dependency has not yet caught up.
-  for (const version of ['1.8','1.9','1.10','1.11','1.12','1.13','1.14','1.15','1.16','1.17','1.18','1.19','1.20','1.21','1.21.9','1.21.11','26.1','26.2','26.3']) {
-    versions.add(version);
-  }
+  // Only advertise releases actually present in the installed minecraft-data registry.
   return [...versions].sort((a, b) => {
     const pa = a.split('.').map(Number), pb = b.split('.').map(Number);
     for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
