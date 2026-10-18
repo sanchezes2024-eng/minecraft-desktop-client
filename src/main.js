@@ -107,6 +107,8 @@ ipcMain.handle('connect', async (_event, cfg) => {
   } catch (err) { send('connection-status', { status: 'error', message: err.message }); throw err; }
   const current = bot;
   current.once('login', () => send('connection-status', { status: 'connected', message: `Logged in as ${current.username}` }));
+  current.on('mount', () => { updateVehicleMovement(); publishState(); send('connection-status', { status: 'connected', message: `Mounted ${current.vehicle?.name || 'vehicle'}. Use WASD/arrows to steer and Shift to dismount.` }); });
+  current.on('dismount', () => { clearControls(); publishState(); });
   current.once('spawn', async () => {
     try {
       const alreadyRunning = await viewerHealthy();
