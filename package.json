@@ -8,7 +8,7 @@
     "check": "node --check src/main.js && node --check src/preload.js && node --check src/renderer.js"
   },
   "dependencies": {
-    "mineflayer": "npm:@wp2508/mineflayer@4.42.2",
+    "mineflayer": "^4.33.0",
     "prismarine-viewer": "^1.33.0",
     "minecraft-data": "^3.100.0"
   },
