@@ -1,6 +1,37 @@
 'use strict';
 const $ = id => document.getElementById(id);
 const connectForm = $('connectForm'), connectBtn = $('connectBtn');
+const versionSelect = $('version');
+async function populateVersionList() {
+  if (!versionSelect || !window.mcClient.getSupportedVersions) return;
+  const previouslySelected = versionSelect.value;
+  try {
+    const versions = await window.mcClient.getSupportedVersions();
+    if (!Array.isArray(versions) || !versions.length) return;
+    versionSelect.replaceChildren();
+    const auto = document.createElement('option');
+    auto.value = 'auto';
+    auto.textContent = 'Auto detect (recommended)';
+    versionSelect.appendChild(auto);
+    const group = document.createElement('optgroup');
+    group.label = 'Supported Minecraft releases';
+    for (const version of versions) {
+      const option = document.createElement('option');
+      option.value = version;
+      option.textContent = version;
+      group.appendChild(option);
+    }
+    versionSelect.appendChild(group);
+    if ([...versionSelect.options].some(option => option.value === previouslySelected)) {
+      versionSelect.value = previouslySelected;
+    } else {
+      versionSelect.value = 'auto';
+    }
+  } catch (err) {
+    console.warn('Could not load supported Minecraft versions:', err);
+  }
+}
+
 const worldFrame = $('worldFrame'), capture = $('capture');
 const placeholder = document.querySelector('.world-placeholder');
 let connected = false, locked = false, paused = false, yaw = 0, pitch = 0, sensitivity = 0.0022, selectedSlot = 0;
@@ -132,5 +163,6 @@ function openChat() { chatOpen=true; $('chatOverlay').hidden=false; $('chatInput
 function closeChat() { chatOpen=false; $('chatOverlay').hidden=true; $('chatInput').value=''; $('chatInput').blur(); }
 $('chatForm').addEventListener('submit',e=>{e.preventDefault();const input=$('chatInput');const message=input.value.trim();if(message){window.mcClient.chat(message);log(`<${latestState.username||$('username').value}> ${message}`,'chat');}closeChat();});
 document.addEventListener('wheel',e=>{ if(!connected||paused||!locked) return; selectedSlot=(selectedSlot+(e.deltaY>0?1:8))%9; window.mcClient.selectHotbar(selectedSlot); renderHotbar(latestState); },{passive:true});
+populateVersionList();
 updateInitial();
 function updateInitial() { $('pauseOverlay').hidden=true; $('gameScreen').hidden=true; $('loginScreen').hidden=false; $('gameHud').style.display='flex'; window.mcClient.requestState(); }
