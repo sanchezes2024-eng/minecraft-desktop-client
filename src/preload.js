@@ -1,6 +1,7 @@
 const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('mcClient', {
   connect: cfg => ipcRenderer.invoke('connect', cfg),
+  getSupportedVersions: () => ipcRenderer.invoke('supported-versions'),
   control: (control, down) => ipcRenderer.send('control', { control, down }),
   releaseControls: () => ipcRenderer.send('release-controls'),
   look: (yaw, pitch) => ipcRenderer.send('look', { yaw, pitch }),
