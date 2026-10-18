@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; frame-src http://127.0.0.1:3007; img-src 'self' data: http://127.0.0.1:3007; connect-src 'self' http://127.0.0.1:3007 ws://127.0.0.1:3007">
+  <title>Voxel Desktop Client</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <section id="loginScreen" class="screen login-screen">
+    <div class="login-shade"></div>
+    <div class="login-brand"><div class="brand-cube">V</div><div><strong>VOXEL</strong><span>DESKTOP CLIENT</span></div></div>
+    <form id="connectForm" class="login-card">
+      <div class="minecraft-label">MULTIPLAYER</div>
+      <h1>Join a world</h1>
+      <label>Server address<input id="host" value="localhost" placeholder="play.example.net" autocomplete="off" required></label>
+      <div class="form-row"><label>Port<input id="port" type="number" min="1" max="65535" value="25565" required></label><label>Username<input id="username" value="VoxelPlayer" maxlength="16" required></label></div>
+      <label>Version<select id="version"><option value="auto">Auto detect</option><option>1.21.4</option><option>1.20.1</option><option>1.19.4</option><option>1.16.5</option><option>1.12.2</option><option>1.8.9</option></select></label>
+      <label>Authentication<select id="auth"><option value="offline">Offline / server-dependent</option><option value="microsoft">Microsoft account</option></select></label>
+      <button id="connectBtn" class="mc-button primary" type="submit">Join Server</button>
+      <div id="connectStatus" class="login-status">Enter your server details to begin.</div>
+      <div class="login-note">Only connect to servers you are allowed to access. Online-mode servers may require Microsoft sign-in.</div>
+    </form>
+    <div class="login-footer">VOXEL DESKTOP CLIENT <span>•</span> NOT AN OFFICIAL MINECRAFT PRODUCT</div>
+  </section>
+  <section id="gameScreen" class="screen game-screen" hidden>
+    <div id="worldWrap" class="world-wrap">
+      <div class="world-placeholder"><div class="loading-cube">▦</div><h2>Loading world…</h2><p>Waiting for terrain from the server.</p></div>
+      <iframe id="worldFrame" title="Minecraft 3D world" src="about:blank" allow="autoplay; fullscreen" hidden></iframe>
+      <div id="capture" class="capture-layer" title="Click to capture mouse"></div>
+      <div class="crosshair" aria-hidden="true"><span></span><i></i></div>
+      <div id="gameHud" class="game-hud">
+        <div class="hud-bars"><div id="hearts" class="hud-icons hearts"></div><div id="foodIcons" class="hud-icons hunger"></div></div>
+        <div class="xp-line"><div class="xp-track"><i id="xpFill"></i></div><span id="xpLevel">0</span></div>
+        <div id="hotbar" class="hotbar"></div><div id="heldName" class="held-name"></div>
+      </div>
+      <div id="captureHint" class="capture-hint">Click to play · Esc for menu</div>
+      <div id="chatOverlay" class="chat-overlay" hidden><div id="log" class="chat-log"></div><form id="chatForm"><span>›</span><input id="chatInput" placeholder="Chat message" maxlength="256" autocomplete="off"><button type="submit">Send</button></form></div>
+      <div id="toast" class="toast" hidden></div>
+    </div>
+    <div id="pauseOverlay" class="pause-overlay" hidden>
+      <div class="pause-menu">
+        <div class="pause-title">Game Menu</div>
+        <div id="pauseStatus" class="pause-status">Connected</div>
+        <button id="resumeBtn" class="mc-button">Back to Game</button>
+        <button id="pauseOptionsBtn" class="mc-button">Controls</button>
+        <button id="disconnectBtn" class="mc-button">Disconnect</button>
+        <div id="pauseOptions" class="pause-options" hidden>W A S D — Move<br>Space — Jump<br>Shift — Sneak<br>Ctrl — Sprint<br>Mouse — Look around<br>1–9 / scroll — Select hotbar<br>Left click — Break block<br>Right click — Place block</div>
+        <div class="pause-footer">Voxel Desktop Client</div>
+      </div>
+    </div>
+  </section>
+  <script src="renderer.js"></script>
+</body>
+</html>
