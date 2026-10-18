@@ -4,7 +4,8 @@ const connectForm = $('connectForm'), connectBtn = $('connectBtn');
 const worldFrame = $('worldFrame'), capture = $('capture');
 const placeholder = document.querySelector('.world-placeholder');
 let connected = false, locked = false, paused = false, yaw = 0, pitch = 0, sensitivity = 0.0022, selectedSlot = 0;
-let latestState = {}, heldCodes = new Set(), chatOpen = false;\nlet targetYaw=0,targetPitch=0,renderYaw=0,renderPitch=0,lookFrame=0;
+let latestState = {}, heldCodes = new Set(), chatOpen = false;
+let targetYaw=0,targetPitch=0,renderYaw=0,renderPitch=0,lookFrame=0;
 const keyControls = new Map([
   ['KeyW','forward'],['ArrowUp','forward'],['KeyS','back'],['ArrowDown','back'],
   ['KeyA','left'],['ArrowLeft','left'],['KeyD','right'],['ArrowRight','right'],
@@ -94,7 +95,9 @@ document.addEventListener('pointerlockchange',()=>{
   if(!locked) releaseAll();
 });
 capture.addEventListener('click',()=>{ if(connected&&!paused&&!locked) lockPointer(); });
-function smoothLook(){const alpha=0.42;renderYaw+=(targetYaw-renderYaw)*alpha;renderPitch+=(targetPitch-renderPitch)*alpha;if(Math.abs(targetYaw-renderYaw)>0.0001||Math.abs(targetPitch-renderPitch)>0.0001){window.mcClient.look(renderYaw,renderPitch);}lookFrame=requestAnimationFrame(smoothLook);}\nlookFrame=requestAnimationFrame(smoothLook);\ndocument.addEventListener('mousemove',e=>{
+function smoothLook(){const alpha=0.42;renderYaw+=(targetYaw-renderYaw)*alpha;renderPitch+=(targetPitch-renderPitch)*alpha;if(Math.abs(targetYaw-renderYaw)>0.0001||Math.abs(targetPitch-renderPitch)>0.0001){window.mcClient.look(renderYaw,renderPitch);}lookFrame=requestAnimationFrame(smoothLook);}
+lookFrame=requestAnimationFrame(smoothLook);
+document.addEventListener('mousemove',e=>{
   if(!locked||!connected||paused) return; yaw-=e.movementX*sensitivity; pitch-=e.movementY*sensitivity;
   pitch=Math.max(-Math.PI/2+0.01,Math.min(Math.PI/2-0.01,pitch)); window.mcClient.look(yaw,pitch);
 });
