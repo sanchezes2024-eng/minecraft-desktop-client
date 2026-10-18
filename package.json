@@ -9,7 +9,8 @@
   },
   "dependencies": {
     "mineflayer": "npm:@wp2508/mineflayer@4.42.2",
-    "prismarine-viewer": "^1.33.0"
+    "prismarine-viewer": "^1.33.0",
+    "minecraft-data": "^3.100.0"
   },
   "devDependencies": {
     "electron": "^38.2.0"
