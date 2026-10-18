@@ -2,7 +2,9 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('node:path');
 const http = require('node:http');
 const mineflayer = require('mineflayer');
-let mcDataFactory;\ntry { mcDataFactory = require('minecraft-data'); } catch {}\nconst { mineflayer: startViewer } = require('prismarine-viewer');
+let mcDataFactory;
+try { mcDataFactory = require('minecraft-data'); } catch {}
+const { mineflayer: startViewer } = require('prismarine-viewer');
 
 let win;
 let bot;
@@ -28,7 +30,9 @@ function stateSnapshot() {
     level: bot.experience ? bot.experience.level : 0,
     gameMode: bot.game?.gameMode ?? null,
     heldItem: bot.heldItem ? { name: bot.heldItem.name, displayName: bot.heldItem.displayName || bot.heldItem.name, count: bot.heldItem.count } : null,
-    quickbar,\n    inventory: items.map((item, slot) => item ? ({ name:item.name, displayName:item.displayName || item.name, count:item.count, slot }) : null),\n    position: bot.entity?.position ? { x: bot.entity.position.x, y: bot.entity.position.y, z: bot.entity.position.z } : null,
+    quickbar,
+    inventory: items.map((item, slot) => item ? ({ name:item.name, displayName:item.displayName || item.name, count:item.count, slot }) : null),
+    position: bot.entity?.position ? { x: bot.entity.position.x, y: bot.entity.position.y, z: bot.entity.position.z } : null,
     vehicle: bot.vehicle ? { name: bot.vehicle.name || bot.vehicle.displayName || 'vehicle', type: bot.vehicle.type || 'unknown' } : null
   };
 }
@@ -159,7 +163,17 @@ function publishInventory() {
   } catch {}
   send('inventory-data', { state: stateSnapshot(), items });
 }
-ipcMain.on('inventory-open-table', async () => {\n  if (!bot || !bot.entity) return;\n  try {\n    const table = bot.findBlock({ matching:b=>b && b.name==='crafting_table', maxDistance:4 });\n    if (!table) { send('connection-status',{status:'connected',message:'No crafting table found within 4 blocks.'}); return; }\n    if (!bot.openWorkbench) { send('connection-status',{status:'connected',message:'Crafting-table support is unavailable for this protocol.'}); return; }\n    await bot.openWorkbench(table);\n    publishInventory();\n  } catch (err) { send('connection-status',{status:'connected',message:`Could not open crafting table: ${err.message}`}); }\n});\nipcMain.on('inventory-request', () => {
+ipcMain.on('inventory-open-table', async () => {
+  if (!bot || !bot.entity) return;
+  try {
+    const table = bot.findBlock({ matching:b=>b && b.name==='crafting_table', maxDistance:4 });
+    if (!table) { send('connection-status',{status:'connected',message:'No crafting table found within 4 blocks.'}); return; }
+    if (!bot.openWorkbench) { send('connection-status',{status:'connected',message:'Crafting-table support is unavailable for this protocol.'}); return; }
+    await bot.openWorkbench(table);
+    publishInventory();
+  } catch (err) { send('connection-status',{status:'connected',message:`Could not open crafting table: ${err.message}`}); }
+});
+ipcMain.on('inventory-request', () => {
   if (!bot) return;
   publishInventory();
   try {
