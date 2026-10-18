@@ -58,6 +58,12 @@ function renderHotbar(s) {
   $('heldName').textContent=s.heldItem?.displayName||'';
 }
 function renderState(s) {
+  const mode = String(s.gameMode ?? s.gamemode ?? '').toLowerCase();
+  const creative = mode === '1' || mode === 'creative' || mode === 'creative_mode';
+  const bars = document.querySelector('.hud-bars');
+  if (bars) bars.style.display = creative ? 'none' : 'flex';
+  const xpLine = document.querySelector('.xp-line');
+  if (xpLine) xpLine.style.display = creative ? 'none' : 'flex';
   const previousVehicle = latestState.vehicle?.name || null;
   latestState=s||{};
   const currentVehicle = latestState.vehicle?.name || null;
