@@ -9,6 +9,7 @@ contextBridge.exposeInMainWorld('mcClient', {
   disconnect: () => ipcRenderer.send('disconnect'),
   requestState: () => ipcRenderer.send('request-state'),
   dig: action => ipcRenderer.send('dig', action),
+  dismount: () => ipcRenderer.send('dismount'),
   onState: cb => ipcRenderer.on('bot-state', (_e, v) => cb(v)),
   onStatus: cb => ipcRenderer.on('connection-status', (_e, v) => cb(v)),
   onViewer: cb => ipcRenderer.on('viewer-url', (_e, v) => cb(v))
