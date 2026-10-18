@@ -57,7 +57,11 @@ function renderHotbar(s) {
   $('heldName').textContent=s.heldItem?.displayName||'';
 }
 function renderState(s) {
+  const previousVehicle = latestState.vehicle?.name || null;
   latestState=s||{};
+  const currentVehicle = latestState.vehicle?.name || null;
+  if (currentVehicle && currentVehicle !== previousVehicle) showToast(`Riding: ${currentVehicle} · WASD to steer · Shift to dismount`);
+  else if (!currentVehicle && previousVehicle) showToast('Dismounted.');
   if(Number.isFinite(s.health)) renderIcons('hearts',s.health,'heart');
   if(Number.isFinite(s.food)) renderIcons('foodIcons',s.food,'food');
   $('xpFill').style.width=`${Math.max(0,Math.min(1,s.experience||0))*100}%`; $('xpLevel').textContent=s.level||0;
@@ -107,6 +111,7 @@ document.addEventListener('keydown',e=>{
   }
   if(paused) return;
   if(e.code==='KeyT'&&!e.repeat) { openChat(); e.preventDefault(); return; }
+  if((e.code==='ShiftLeft'||e.code==='ShiftRight') && latestState.vehicle && !e.repeat) { window.mcClient.dismount(); e.preventDefault(); return; }
   if(/^Digit[1-9]$/.test(e.code)) { selectedSlot=Number(e.code.slice(5))-1; window.mcClient.selectHotbar(selectedSlot); renderHotbar(latestState); e.preventDefault(); return; }
   if(keyControls.has(e.code)) { setControl(e.code,true); e.preventDefault(); }
 });
