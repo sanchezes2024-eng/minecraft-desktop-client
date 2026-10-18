@@ -16,7 +16,7 @@
       <h1>Join a world</h1>
       <label>Server address<input id="host" value="localhost" placeholder="play.example.net" autocomplete="off" required></label>
       <div class="form-row"><label>Port<input id="port" type="number" min="1" max="65535" value="25565" required></label><label>Username<input id="username" value="VoxelPlayer" maxlength="16" required></label></div>
-      <label>Version<select id="version"><option value="auto">Auto detect</option><option>1.21.4</option><option>1.20.1</option><option>1.19.4</option><option value="1.19.3">1.19.3</option><option>1.16.5</option><option>1.12.2</option><option>1.8.9</option></select></label>
+      <label>Version<select id="version"><option value="auto">Auto detect (recommended)</option></select><small class="field-help">Release versions are loaded from the installed protocol data.</small></label>
       <label>Authentication<select id="auth"><option value="offline">Offline / server-dependent</option><option value="microsoft">Microsoft account</option></select></label>
       <button id="connectBtn" class="mc-button primary" type="submit">Join Server</button>
       <div id="connectStatus" class="login-status">Enter your server details to begin.</div>
