@@ -29,13 +29,42 @@ function stateSnapshot() {
     gameMode: bot.game?.gameMode ?? null,
     heldItem: bot.heldItem ? { name: bot.heldItem.name, displayName: bot.heldItem.displayName || bot.heldItem.name, count: bot.heldItem.count } : null,
     quickbar,
-    position: bot.entity?.position ? { x: bot.entity.position.x, y: bot.entity.position.y, z: bot.entity.position.z } : null
+    position: bot.entity?.position ? { x: bot.entity.position.x, y: bot.entity.position.y, z: bot.entity.position.z } : null,
+    vehicle: bot.vehicle ? { name: bot.vehicle.name || bot.vehicle.displayName || 'vehicle', type: bot.vehicle.type || 'unknown' } : null
   };
 }
 function publishState() { send('bot-state', stateSnapshot()); }
 function clearControls() {
   if (bot) for (const c of controls) { try { bot.setControlState(c, false); } catch {} }
   controls.clear();
+  updateVehicleMovement();
+}
+function updateVehicleMovement() {
+  if (!bot || !bot.entity || !bot.vehicle || typeof bot.moveVehicle !== 'function') return;
+  const left = controls.has('left') ? 1 : controls.has('right') ? -1 : 0;
+  const forward = controls.has('forward') ? 1 : controls.has('back') ? -1 : 0;
+  try { bot.moveVehicle(left, forward); } catch {}
+}
+function isRideableEntity(entity) {
+  if (!entity) return false;
+  const name = String(entity.name || entity.displayName || '').toLowerCase().replace(/[ -]/g, '_');
+  return /(?:^|_)(?:boat|raft|minecart|horse|donkey|mule|pig|strider|camel|skeleton_horse|zombie_horse|llama|trader_llama)(?:$|_)/.test(name)
+    || /(?:boat|minecart|horse|donkey|mule|pig|strider|camel|llama)/.test(name);
+}
+async function tryMountTarget() {
+  if (!bot || !bot.entity) return false;
+  const target = typeof bot.entityAtCursor === 'function' ? bot.entityAtCursor(5) : null;
+  if (!target || !isRideableEntity(target)) return false;
+  try {
+    if (typeof bot.activateEntity === 'function') await bot.activateEntity(target);
+    else if (typeof bot.activateEntityAt === 'function') await bot.activateEntityAt(target);
+    else { send('connection-status', { status: 'connected', message: 'This Mineflayer build does not expose entity interaction for mounting.' }); return true; }
+    send('connection-status', { status: 'connected', message: `Interacting with ${target.name || 'rideable entity'}… If mountable, the server will attach you.` });
+    return true;
+  } catch (err) {
+    send('connection-status', { status: 'connected', message: `Could not mount: ${err.message || err}` });
+    return true;
+  }
 }
 function closeBot() {
   clearControls();
@@ -99,8 +128,8 @@ ipcMain.on('control', (_event, payload) => {
   if (!bot || !bot.entity || !payload || !allowedControls.has(payload.control)) return;
   const down = Boolean(payload.down);
   try {
-    if (down && !controls.has(payload.control)) { controls.add(payload.control); bot.setControlState(payload.control, true); }
-    else if (!down && controls.has(payload.control)) { controls.delete(payload.control); bot.setControlState(payload.control, false); }
+    if (down && !controls.has(payload.control)) { controls.add(payload.control); if (bot.vehicle) updateVehicleMovement(); else bot.setControlState(payload.control, true); }
+    else if (!down && controls.has(payload.control)) { controls.delete(payload.control); if (bot.vehicle) updateVehicleMovement(); else bot.setControlState(payload.control, false); }
   } catch {}
 });
 ipcMain.on('release-controls', clearControls);
@@ -118,6 +147,10 @@ ipcMain.on('chat', (_event, message) => {
 });
 ipcMain.on('disconnect', () => { closeBot(); send('bot-state', { connected: false }); send('connection-status', { status: 'disconnected', message: 'Disconnected.' }); });
 ipcMain.on('request-state', publishState);
+ipcMain.on('dismount', () => {
+  if (!bot || !bot.entity || !bot.vehicle || typeof bot.dismount !== 'function') return;
+  try { bot.dismount(); send('connection-status', { status: 'connected', message: 'Dismount requested.' }); } catch (err) { send('connection-status', { status: 'connected', message: `Could not dismount: ${err.message || err}` }); }
+});
 ipcMain.on('dig', (_event, action) => {
   if (!bot || !bot.entity) return;
   try {
@@ -130,9 +163,12 @@ ipcMain.on('dig', (_event, action) => {
         if (block && block.name !== 'air') bot.dig(block, true).catch(() => {});
       }
     } else if (action === 'place') {
-      const item = bot.heldItem;
-      const block = bot.blockAtCursor(5);
-      if (item && block) bot.placeBlock(block, { x: 0, y: 1, z: 0 }).catch(() => {});
+      tryMountTarget().then(mountedOrHandled => {
+        if (mountedOrHandled || !bot || !bot.entity) return;
+        const item = bot.heldItem;
+        const block = bot.blockAtCursor(5);
+        if (item && block) bot.placeBlock(block, { x: 0, y: 1, z: 0 }).catch(() => {});
+      }).catch(() => {});
     }
   } catch {}
 });
