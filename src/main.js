@@ -159,7 +159,7 @@ function publishInventory() {
   } catch {}
   send('inventory-data', { state: stateSnapshot(), items });
 }
-ipcMain.on('inventory-request', () => {
+ipcMain.on('inventory-open-table', async () => {\n  if (!bot || !bot.entity) return;\n  try {\n    const table = bot.findBlock({ matching:b=>b && b.name==='crafting_table', maxDistance:4 });\n    if (!table) { send('connection-status',{status:'connected',message:'No crafting table found within 4 blocks.'}); return; }\n    if (!bot.openWorkbench) { send('connection-status',{status:'connected',message:'Crafting-table support is unavailable for this protocol.'}); return; }\n    await bot.openWorkbench(table);\n    publishInventory();\n  } catch (err) { send('connection-status',{status:'connected',message:`Could not open crafting table: ${err.message}`}); }\n});\nipcMain.on('inventory-request', () => {
   if (!bot) return;
   publishInventory();
   try {
