@@ -2,7 +2,7 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('node:path');
 const http = require('node:http');
 const mineflayer = require('mineflayer');
-const { mineflayer: startViewer } = require('prismarine-viewer');
+let mcDataFactory;\ntry { mcDataFactory = require('minecraft-data'); } catch {}\nconst { mineflayer: startViewer } = require('prismarine-viewer');
 
 let win;
 let bot;
@@ -28,8 +28,7 @@ function stateSnapshot() {
     level: bot.experience ? bot.experience.level : 0,
     gameMode: bot.game?.gameMode ?? null,
     heldItem: bot.heldItem ? { name: bot.heldItem.name, displayName: bot.heldItem.displayName || bot.heldItem.name, count: bot.heldItem.count } : null,
-    quickbar,
-    position: bot.entity?.position ? { x: bot.entity.position.x, y: bot.entity.position.y, z: bot.entity.position.z } : null,
+    quickbar,\n    inventory: items.map((item, slot) => item ? ({ name:item.name, displayName:item.displayName || item.name, count:item.count, slot }) : null),\n    position: bot.entity?.position ? { x: bot.entity.position.x, y: bot.entity.position.y, z: bot.entity.position.z } : null,
     vehicle: bot.vehicle ? { name: bot.vehicle.name || bot.vehicle.displayName || 'vehicle', type: bot.vehicle.type || 'unknown' } : null
   };
 }
@@ -149,6 +148,74 @@ ipcMain.on('chat', (_event, message) => {
 });
 ipcMain.on('disconnect', () => { closeBot(); send('bot-state', { connected: false }); send('connection-status', { status: 'disconnected', message: 'Disconnected.' }); });
 ipcMain.on('request-state', publishState);
+
+function publishInventory() {
+  if (!bot) return;
+  let items = [];
+  try {
+    const version = bot.version || bot._client?.version;
+    const data = mcDataFactory && mcDataFactory(version);
+    if (data?.itemsArray) items = data.itemsArray.map(item => ({ name:item.name, displayName:item.displayName || item.name, count:64, type:item.id }));
+  } catch {}
+  send('inventory-data', { state: stateSnapshot(), items });
+}
+ipcMain.on('inventory-request', () => {
+  if (!bot) return;
+  publishInventory();
+  try {
+    const block = bot.findBlock({ matching: b => b && b.name === 'crafting_table', maxDistance: 4 });
+    if (block && !bot.currentWindow && bot.openWorkbench) {
+      // Do not open the physical table just because the inventory screen was opened.
+    }
+  } catch {}
+});
+ipcMain.on('inventory-click', (_event, payload) => {
+  if (!bot || !payload || !Number.isInteger(Number(payload.slot))) return;
+  const slot = Number(payload.slot);
+  if (payload.kind === 'crafting' || payload.kind === 'crafting-result') return;
+  try {
+    if (bot.currentWindow && typeof bot.clickWindow === 'function') {
+      bot.clickWindow(slot, payload.button === 1 ? 1 : 0, payload.mode || 0).then(publishInventory).catch(err => send('connection-status',{status:'connected',message:`Inventory click failed: ${err.message}`}));
+    } else if (typeof bot.clickWindow === 'function' && slot >= 0 && slot < 46) {
+      bot.clickWindow(slot, payload.button === 1 ? 1 : 0, 0).then(publishInventory).catch(err => send('connection-status',{status:'connected',message:`Inventory click failed: ${err.message}`}));
+    }
+  } catch (err) { send('connection-status',{status:'connected',message:`Inventory click failed: ${err.message}`}); }
+});
+ipcMain.on('inventory-give', (_event, payload) => {
+  if (!bot || !payload || !bot.creative || typeof bot.creative.setInventorySlot !== 'function') return;
+  const gameMode = String(bot.game?.gameMode ?? '').toLowerCase();
+  if (!(gameMode === '1' || gameMode === 'creative' || gameMode === 'creative_mode')) {
+    send('connection-status',{status:'connected',message:'The server must put you in Creative mode to create items.'}); return;
+  }
+  try {
+    const data = mcDataFactory && mcDataFactory(bot.version);
+    const definition = data?.itemsByName?.[String(payload.name)];
+    if (!definition) return;
+    const count = Math.max(1, Math.min(64, Number(payload.count) || 1));
+    const slot = 36 + (bot.quickBarSlot || 0);
+    bot.creative.setInventorySlot(slot, {type:definition.id,count,metadata:0,nbt:null}).then(publishInventory).catch(err=>send('connection-status',{status:'connected',message:`Creative item request failed: ${err.message}`}));
+  } catch (err) { send('connection-status',{status:'connected',message:`Creative item request failed: ${err.message}`}); }
+});
+ipcMain.on('inventory-craft', async (_event, payload) => {
+  if (!bot || !bot.entity) return;
+  try {
+    let table = null;
+    if (payload?.craftingTable) {
+      table = bot.findBlock({ matching:b=>b && b.name==='crafting_table', maxDistance:4 });
+      if (!table) { send('connection-status',{status:'connected',message:'Place a crafting table nearby to craft 3×3 recipes.'}); return; }
+    }
+    const recipes = bot.recipesFor(bot.heldItem?.type || 0, null, 1, table);
+    if (!recipes?.length) { send('connection-status',{status:'connected',message:'No matching recipe found for the current ingredients.'}); return; }
+    if (table && bot.openWorkbench) {
+      const window = await bot.openWorkbench(table);
+      await bot.craft(recipes[0], 1, window);
+      window.close();
+    } else {
+      await bot.craft(recipes[0], 1, null);
+    }
+    publishState(); publishInventory();
+  } catch (err) { send('connection-status',{status:'connected',message:`Crafting failed: ${err.message}`}); }
+});
 ipcMain.on('dismount', () => {
   if (!bot || !bot.entity || !bot.vehicle || typeof bot.dismount !== 'function') return;
   try { bot.dismount(); send('connection-status', { status: 'connected', message: 'Dismount requested.' }); } catch (err) { send('connection-status', { status: 'connected', message: `Could not dismount: ${err.message || err}` }); }
