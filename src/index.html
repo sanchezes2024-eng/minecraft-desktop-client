@@ -38,6 +38,17 @@
       <div id="captureHint" class="capture-hint">Click to play · Esc for menu</div>
       <div id="chatOverlay" class="chat-overlay" hidden><div id="log" class="chat-log"></div><form id="chatForm"><span>›</span><input id="chatInput" placeholder="Chat message" maxlength="256" autocomplete="off"><button type="submit">Send</button></form></div>
       <div id="toast" class="toast" hidden></div>
+      <section id="inventoryOverlay" class="inventory-overlay" hidden>
+        <div class="inventory-window">
+          <header class="inventory-header"><div><small>PLAYER MENU</small><h2 id="inventoryTitle">Inventory</h2></div><button id="inventoryClose" class="inventory-close" aria-label="Close inventory">×</button></header>
+          <div id="inventoryTabs" class="inventory-tabs"></div>
+          <div class="inventory-layout">
+            <aside class="inventory-character"><div class="character-preview">♟</div><div id="armorSlots" class="armor-slots"></div><div id="offhandSlot" class="offhand-slot"></div></aside>
+            <div class="inventory-main"><div id="craftingArea" class="crafting-area"><div class="crafting-heading"><span id="craftingLabel">Crafting (2×2)</span><button id="craftTableBtn" class="small-button">Use Crafting Table</button></div><div class="crafting-row"><div id="craftingGrid" class="crafting-grid"></div><button id="craftResult" class="craft-result" title="Craft result">⇢</button></div><p class="inventory-help">Click to move stacks · Right-click to move half · Press E or Esc to close</p></div><div id="inventoryGrid" class="inventory-grid"></div></div>
+          </div>
+          <footer class="inventory-footer">Inventory changes are processed by the server</footer>
+        </div>
+      </section>
     </div>
     <div id="pauseOverlay" class="pause-overlay" hidden>
       <div class="pause-menu">
