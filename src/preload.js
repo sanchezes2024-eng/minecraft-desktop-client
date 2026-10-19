@@ -17,6 +17,7 @@ contextBridge.exposeInMainWorld('mcClient', {
   inventoryGive: (name,count) => ipcRenderer.send('inventory-give',{name,count}),
   inventoryCraft: payload => ipcRenderer.send('inventory-craft',payload),
   onInventory: cb => ipcRenderer.on('inventory-data', (_e,v) => cb(v)),
+  onChatLog: cb => ipcRenderer.on('chat-log', (_e,v) => cb(v)),
   onState: cb => ipcRenderer.on('bot-state', (_e, v) => cb(v)),
   onStatus: cb => ipcRenderer.on('connection-status', (_e, v) => cb(v)),
   onViewer: cb => ipcRenderer.on('viewer-url', (_e, v) => cb(v))
