@@ -125,6 +125,7 @@ window.mcClient.onStatus(s=>{
   if(status==='disconnected') { showLogin(); setLoginStatus(s.message||'Disconnected.'); }
 });
 window.mcClient.onState(s=>{ if(s.connected) { connected=true; renderState(s); } });
+window.mcClient.onChatLog(entry=>{if(entry && entry.message)log(entry.message,'chat');});
 window.mcClient.onViewer(url=>{ worldFrame.src=url; worldFrame.hidden=false; placeholder.hidden=true; });
 document.addEventListener('pointerlockchange',()=>{
   locked=document.pointerLockElement===capture; capture.classList.toggle('locked',locked);
