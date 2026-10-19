@@ -137,7 +137,6 @@ ipcMain.handle('connect', async (_event, cfg) => {
   const current = bot;
   current.once('login', () => send('connection-status', { status: 'connected', message: `Logged in as ${current.username}` }));
   current.on('messagestr', message => recordChat(message, 'server'));
-  current.on('chat', (username, message) => recordChat(`<${username}> ${message}`, 'chat'));
   current.on('mount', () => { updateVehicleMovement(); publishState(); send('connection-status', { status: 'connected', message: `Mounted ${current.vehicle?.name || 'vehicle'}. Use WASD/arrows to steer and Shift to dismount.` }); });
   current.on('dismount', () => { clearControls(); publishState(); });
   current.once('spawn', async () => {
