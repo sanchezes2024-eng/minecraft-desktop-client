@@ -16,12 +16,15 @@
     const gm=String(state.gameMode??'').toLowerCase();mode=(gm==='1'||gm==='creative'||gm==='creative_mode')?'creative':'survival';
     title.textContent=mode==='creative'?'Creative Inventory':'Inventory';
     tabs.replaceChildren();grid.replaceChildren();craftGrid.replaceChildren();
+    document.querySelector('.creative-browser')?.remove();
     const makeTab=(id,label)=>{const b=document.createElement('button');b.className='inv-tab'+(tab===id?' active':'');b.textContent=label;b.onclick=()=>{tab=id;render();};tabs.append(b);};
     makeTab('inventory','Inventory');if(mode==='creative')makeTab('items','All Items');
     $('craftingArea').hidden=tab==='items';
-    if(tab==='items'&&mode==='creative'){
-      const search=document.createElement('input');search.id='itemSearch';search.placeholder='Search items…';search.value=$('itemSearch')?.value||'';search.className='item-search';search.oninput=()=>fillCreative(search.value);grid.append(search);
-      const results=document.createElement('div');results.id='creativeItems';results.className='creative-items';grid.append(results);fillCreative(search.value);return;
+    if(mode==='creative'){
+      const browser=document.createElement('section');browser.className='creative-browser';
+      const search=document.createElement('input');search.id='itemSearch';search.placeholder='Search all available items…';search.value=$('itemSearch')?.value||'';search.className='item-search';search.oninput=()=>fillCreative(search.value);browser.append(search);
+      const results=document.createElement('div');results.id='creativeItems';results.className='creative-items';browser.append(results);
+      grid.parentElement.insertBefore(browser,grid);fillCreative(search.value);
     }
     const inv=state.inventory||[];
     const hotbar=state.quickbar||Array(9).fill(null);
