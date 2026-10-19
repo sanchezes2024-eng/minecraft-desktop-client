@@ -264,21 +264,43 @@ ipcMain.on('dismount', () => {
 ipcMain.on('dig', (_event, action) => {
   if (!bot || !bot.entity) return;
   try {
+    if (action === 'stop') {
+      if (typeof bot.stopDigging === 'function') bot.stopDigging();
+      return;
+    }
     if (action === 'start') {
       const target = typeof bot.entityAtCursor === 'function' ? bot.entityAtCursor(5) : null;
       if (target && target.type === 'mob' && target.isValid !== false) {
         bot.attack(target, true);
-      } else {
-        const block = bot.blockAtCursor(5);
-        if (block && block.name !== 'air') bot.dig(block, true).catch(() => {});
+        return;
       }
-    } else if (action === 'place') {
-      tryMountTarget().then(mountedOrHandled => {
+      const block = bot.blockAtCursor(5);
+      if (block && block.name !== 'air' && block.boundingBox !== 'empty' && typeof bot.dig === 'function') {
+        bot.dig(block, true).catch(err => send('connection-status', { status:'connected', message:`Could not break block: ${err.message}` }));
+      }
+      return;
+    }
+    if (action === 'place') {
+      tryMountTarget().then(async mountedOrHandled => {
         if (mountedOrHandled || !bot || !bot.entity) return;
         const item = bot.heldItem;
         const block = bot.blockAtCursor(5);
-        if (item && block) bot.placeBlock(block, { x: 0, y: 1, z: 0 }).catch(() => {});
-      }).catch(() => {});
+        if (!item) { send('connection-status',{status:'connected',message:'Select a block in your hotbar to place it.'}); return; }
+        if (!block || block.name === 'air' || block.boundingBox === 'empty') { send('connection-status',{status:'connected',message:'Aim at a solid block face to place a block.'}); return; }
+        // Mineflayer requires the outward face vector of the targeted block.
+        const yaw = bot.entity.yaw || 0;
+        const pitch = bot.entity.pitch || 0;
+        const dir = { x: -Math.sin(yaw) * Math.cos(pitch), y: -Math.sin(pitch), z: -Math.cos(yaw) * Math.cos(pitch) };
+        const candidates = [
+          { v: new (require('vec3').Vec3)(1,0,0), d: Math.abs(dir.x) },
+          { v: new (require('vec3').Vec3)(-1,0,0), d: Math.abs(dir.x) },
+          { v: new (require('vec3').Vec3)(0,1,0), d: Math.abs(dir.y) },
+          { v: new (require('vec3').Vec3)(0,-1,0), d: Math.abs(dir.y) },
+          { v: new (require('vec3').Vec3)(0,0,1), d: Math.abs(dir.z) },
+          { v: new (require('vec3').Vec3)(0,0,-1), d: Math.abs(dir.z) }
+        ].sort((a,b)=>b.d-a.d);
+        await bot.placeBlock(block, candidates[0].v);
+      }).catch(err => send('connection-status',{status:'connected',message:`Could not place block: ${err.message || err}`}));
     }
-  } catch {}
+  } catch (err) { send('connection-status',{status:'connected',message:`Action failed: ${err.message || err}`}); }
 });
