@@ -158,7 +158,9 @@ document.addEventListener('keydown',e=>{
 });
 document.addEventListener('keyup',e=>setControl(e.code,false));
 window.addEventListener('blur',releaseAll); document.addEventListener('visibilitychange',()=>{if(document.hidden)releaseAll();}); window.addEventListener('beforeunload',releaseAll);
-document.addEventListener('mousedown',e=>{ if(!connected||paused||!locked||$('hotbar').contains(e.target)) return; if(e.button===0) window.mcClient.dig('start'); else if(e.button===2) window.mcClient.dig('place'); });
+document.addEventListener('mousedown',e=>{ if(!connected||paused||!locked||$('hotbar').contains(e.target)||!$('inventoryOverlay').hidden) return; if(e.button===0) window.mcClient.dig('start'); else if(e.button===2) window.mcClient.dig('place'); });
+document.addEventListener('mouseup',e=>{if(e.button===0) window.mcClient.dig('stop');});
+window.addEventListener('blur',()=>window.mcClient.dig('stop'));
 document.addEventListener('contextmenu',e=>{if(connected) e.preventDefault();});
 function openChat() { chatOpen=true; $('chatOverlay').hidden=false; $('chatInput').focus(); if(document.pointerLockElement) document.exitPointerLock(); releaseAll(); }
 function closeChat() { chatOpen=false; $('chatOverlay').hidden=true; $('chatInput').value=''; $('chatInput').blur(); }
