@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('node:path');
 const http = require('node:http');
+const fs = require('node:fs');
 const mineflayer = require('mineflayer');
 let mcDataFactory;
 try { mcDataFactory = require('minecraft-data'); } catch {}
@@ -14,6 +15,12 @@ const VIEWER_PORT = Number(process.env.VIEWER_PORT || 3007);
 const controls = new Set();
 const allowedControls = new Set(['forward', 'back', 'left', 'right', 'jump', 'sprint', 'sneak']);
 
+const chatLogPath = () => path.join(app.getPath('userData'), 'chat.log');
+function recordChat(message, type = 'chat') {
+  const entry = { timestamp: new Date().toISOString(), type, message: String(message ?? '') };
+  try { fs.appendFileSync(chatLogPath(), JSON.stringify(entry) + '\\n', 'utf8'); } catch (err) { console.warn('Could not write chat log:', err.message); }
+  send('chat-log', entry);
+}
 function send(channel, data) {
   if (win && !win.isDestroyed()) win.webContents.send(channel, data);
 }
@@ -129,6 +136,8 @@ ipcMain.handle('connect', async (_event, cfg) => {
   } catch (err) { send('connection-status', { status: 'error', message: err.message }); throw err; }
   const current = bot;
   current.once('login', () => send('connection-status', { status: 'connected', message: `Logged in as ${current.username}` }));
+  current.on('messagestr', message => recordChat(message, 'server'));
+  current.on('chat', (username, message) => recordChat(`<${username}> ${message}`, 'chat'));
   current.on('mount', () => { updateVehicleMovement(); publishState(); send('connection-status', { status: 'connected', message: `Mounted ${current.vehicle?.name || 'vehicle'}. Use WASD/arrows to steer and Shift to dismount.` }); });
   current.on('dismount', () => { clearControls(); publishState(); });
   current.once('spawn', async () => {
@@ -167,7 +176,7 @@ ipcMain.on('select-hotbar', (_event, slot) => {
   if (bot && Number.isInteger(slot) && slot >= 0 && slot <= 8) bot.setQuickBarSlot(slot);
 });
 ipcMain.on('chat', (_event, message) => {
-  if (bot && typeof message === 'string' && message.trim()) { try { bot.chat(message.slice(0, 256)); } catch {} }
+  if (bot && typeof message === 'string' && message.trim()) { const text = message.slice(0, 256); try { bot.chat(text); recordChat(`<${bot.username}> ${text}`, 'outgoing'); } catch {} }
 });
 ipcMain.on('disconnect', () => { closeBot(); send('bot-state', { connected: false }); send('connection-status', { status: 'disconnected', message: 'Disconnected.' }); });
 ipcMain.on('request-state', publishState);
