@@ -41,7 +41,7 @@
   }
   function fillCreative(query=''){
     const el=$('creativeItems');if(!el)return;el.replaceChildren();
-    const q=query.toLowerCase();const matches=items.filter(i=>(i.displayName+' '+i.name).toLowerCase().includes(q)).slice(0,500);
+    const q=query.toLowerCase();const matches=items.filter(i=>(i.displayName+' '+i.name).toLowerCase().includes(q));
     for(const item of matches)el.append(slotButton(item,-1,'creative'));
     if(!matches.length){const p=document.createElement('p');p.textContent='No matching items found.';el.append(p);}
   }
