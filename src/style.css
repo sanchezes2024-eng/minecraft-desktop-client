@@ -17,3 +17,50 @@
 .log-line.chat{color:#fff}
 .log-line.outgoing{color:#d7f5d0}
 .log-line.server{color:#e8e8e8}
+
+
+/* Updated Minecraft-style inventory screen */
+.inventory-overlay{background:rgba(0,0,0,.72);backdrop-filter:none;padding:16px}
+.inventory-window{width:min(690px,100%);max-height:94vh;overflow:auto;padding:16px 18px 13px;background:#c6c6c6;color:#404040;border:2px solid #fff;border-right-color:#555;border-bottom-color:#555;box-shadow:0 0 0 2px #222,0 12px 50px #000b;font-family:Arial,Helvetica,sans-serif}
+.inventory-header{margin:0 0 12px;padding:0 0 8px;border-bottom:1px solid #a0a0a0}
+.inventory-header small{color:#555;font-size:9px;letter-spacing:1.5px}
+.inventory-header h2{font-size:20px;font-weight:400;margin:2px 0 0;color:#404040}
+.inventory-close{background:#777;border:2px solid #fff;border-right-color:#444;border-bottom-color:#444;color:#fff;font-size:22px}
+.inventory-tabs{gap:4px;margin:0 0 12px}
+.inv-tab{background:#aaa;border:2px solid #eee;border-right-color:#555;border-bottom-color:#555;color:#333;font-size:12px;padding:7px 12px}
+.inv-tab.active{background:#dedede;border-color:#666 #fff #fff #666;font-weight:bold}
+.inventory-layout{grid-template-columns:132px minmax(0,1fr);gap:18px;align-items:start}
+.inventory-character{min-height:0;padding:8px 7px;background:transparent;border:0;display:flex;align-items:center;gap:8px}
+.character-preview{height:126px;width:100%;display:grid;place-items:center;background:#b4b4b4;border:2px solid #999;color:#555;font-size:76px;text-shadow:2px 2px #eee}
+.armor-slots{grid-template-columns:repeat(2,36px);gap:4px}
+.offhand-slot{margin-top:0}
+.offhand-slot .inv-slot,.armor-slots .inv-slot{width:36px}
+.inventory-main{min-width:0}
+.crafting-area{padding:10px 10px 12px;margin-bottom:12px;background:transparent;border:0;border-bottom:1px solid #999}
+.crafting-heading{font-size:12px;margin-bottom:9px;color:#404040}
+.small-button{background:#aaa;font-size:10px}
+.crafting-row{gap:16px}
+.crafting-grid{grid-template-columns:repeat(2,38px);gap:4px}
+.crafting-grid.table-crafting{grid-template-columns:repeat(3,38px)}
+.craft-result{margin-left:4px;width:46px;height:46px;background:#aaa;border:2px solid #eee;border-right-color:#555;border-bottom-color:#555;color:#fff}
+.inventory-help{color:#555;line-height:1.4}
+.inventory-grid{grid-template-columns:repeat(9,minmax(0,1fr));gap:4px;padding:0}
+.inventory-grid .inv-slot{aspect-ratio:1;background:#8b8b8b;border:2px solid #555;border-top-color:#373737;border-left-color:#373737;border-right-color:#f1f1f1;border-bottom-color:#f1f1f1;box-shadow:inset 1px 1px #666}
+.inv-slot{border-radius:0}
+.inv-slot:hover{background:#bcbcbc;outline:2px solid #fff;outline-offset:-2px}
+.inv-item-icon{font-size:clamp(10px,2vw,20px);text-shadow:1px 1px #333}
+.inv-count{font-size:11px;text-shadow:1px 1px #333}
+.inventory-footer{padding-top:9px;border-top:1px solid #aaa;color:#555}
+.creative-browser{background:#b7b7b7;border:1px solid #999;padding:9px;margin-bottom:12px}
+.creative-browser:before{content:"Search Items";font-weight:bold;color:#404040}
+.item-search{background:#eee;color:#222;border:2px solid #777;border-top-color:#555;border-left-color:#555;border-radius:0}
+.creative-browser .creative-items{grid-template-columns:repeat(9,minmax(0,1fr));gap:4px;max-height:28vh}
+@media(max-width:560px){
+  .inventory-overlay{padding:6px}
+  .inventory-window{padding:9px}
+  .inventory-layout{grid-template-columns:1fr;gap:5px}
+  .inventory-character{display:none}
+  .inventory-grid{gap:2px}
+  .inventory-grid .inv-slot{border-width:1px}
+  .creative-browser .creative-items{gap:2px}
+}
