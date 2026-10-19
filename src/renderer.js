@@ -162,7 +162,7 @@ document.addEventListener('mousedown',e=>{ if(!connected||paused||!locked||$('ho
 document.addEventListener('contextmenu',e=>{if(connected) e.preventDefault();});
 function openChat() { chatOpen=true; $('chatOverlay').hidden=false; $('chatInput').focus(); if(document.pointerLockElement) document.exitPointerLock(); releaseAll(); }
 function closeChat() { chatOpen=false; $('chatOverlay').hidden=true; $('chatInput').value=''; $('chatInput').blur(); }
-$('chatForm').addEventListener('submit',e=>{e.preventDefault();const input=$('chatInput');const message=input.value.trim();if(message){window.mcClient.chat(message);log(`<${latestState.username||$('username').value}> ${message}`,'chat');}closeChat();});
+$('chatForm').addEventListener('submit',e=>{e.preventDefault();const input=$('chatInput');const message=input.value.trim();if(message){window.mcClient.chat(message);}closeChat();});
 document.addEventListener('wheel',e=>{ if(!connected||paused||!locked) return; selectedSlot=(selectedSlot+(e.deltaY>0?1:8))%9; window.mcClient.selectHotbar(selectedSlot); renderHotbar(latestState); },{passive:true});
 populateVersionList();
 updateInitial();
