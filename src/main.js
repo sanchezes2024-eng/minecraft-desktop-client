@@ -291,15 +291,13 @@ ipcMain.on('dig', (_event, action) => {
         const yaw = bot.entity.yaw || 0;
         const pitch = bot.entity.pitch || 0;
         const dir = { x: -Math.sin(yaw) * Math.cos(pitch), y: -Math.sin(pitch), z: -Math.cos(yaw) * Math.cos(pitch) };
-        const candidates = [
-          { v: new (require('vec3').Vec3)(1,0,0), d: Math.abs(dir.x) },
-          { v: new (require('vec3').Vec3)(-1,0,0), d: Math.abs(dir.x) },
-          { v: new (require('vec3').Vec3)(0,1,0), d: Math.abs(dir.y) },
-          { v: new (require('vec3').Vec3)(0,-1,0), d: Math.abs(dir.y) },
-          { v: new (require('vec3').Vec3)(0,0,1), d: Math.abs(dir.z) },
-          { v: new (require('vec3').Vec3)(0,0,-1), d: Math.abs(dir.z) }
-        ].sort((a,b)=>b.d-a.d);
-        await bot.placeBlock(block, candidates[0].v);
+        const Vec3 = require('vec3').Vec3;
+        // The face vector points outward from the targeted block, opposite the look ray.
+        let face;
+        if (Math.abs(dir.x) >= Math.abs(dir.y) && Math.abs(dir.x) >= Math.abs(dir.z)) face = new Vec3(dir.x > 0 ? -1 : 1, 0, 0);
+        else if (Math.abs(dir.y) >= Math.abs(dir.x) && Math.abs(dir.y) >= Math.abs(dir.z)) face = new Vec3(0, dir.y > 0 ? -1 : 1, 0);
+        else face = new Vec3(0, 0, dir.z > 0 ? -1 : 1);
+        await bot.placeBlock(block, face);
       }).catch(err => send('connection-status',{status:'connected',message:`Could not place block: ${err.message || err}`}));
     }
   } catch (err) { send('connection-status',{status:'connected',message:`Action failed: ${err.message || err}`}); }
