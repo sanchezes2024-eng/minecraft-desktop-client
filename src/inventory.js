@@ -1,7 +1,7 @@
 'use strict';
 (() => {
   const $ = id => document.getElementById(id);
-  const panel=$('inventoryOverlay'), grid=$('inventoryGrid'), tabs=$('inventoryTabs'), title=$('inventoryTitle'), craftGrid=$('craftGrid');
+  const panel=$('inventoryOverlay'), grid=$('inventoryGrid'), tabs=$('inventoryTabs'), title=$('inventoryTitle'), craftGrid=$('craftingGrid');
   let mode='survival', tab='inventory', state={}, items=[], cursor=null, recipes=[], craftingTable=false;
   const symbols={stone:'▦',dirt:'▪',grass_block:'▩',oak_planks:'▤',cobblestone:'▧',diamond:'◆',diamond_pickaxe:'⛏',wooden_pickaxe:'⛏',iron_ingot:'●',apple:'●',bread:'▰',torch:'♨',oak_log:'▤',stick:'╱'};
   function show(open){panel.hidden=!open;if(open){render();window.mcClient.inventoryRequest();}}
